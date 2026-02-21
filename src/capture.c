@@ -1,7 +1,12 @@
-#include "../include/capture.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <pthread.h>
+#include "../include/capture.h"
+#include "../include/packet_parcer.h"
+
+static pthread_mutex_t log_mutex = PTHREAD_MUTEX_INITIALIZER;
+
 
 int open_device(captureContext *ctx, const char *device) {
     if(ctx == NULL) {
@@ -34,8 +39,20 @@ int open_device(captureContext *ctx, const char *device) {
     return 0;
 }
 
-void captureHandler(u_char *args, const struct pcap_pkthdr, const u_char *packet) {
-    printf("Inside the packete capture handler \n");
+
+void captureHandler(u_char *args, const struct pcap_pkthdr *header, const u_char *packet) {
+    pthread_mutex_lock(&log_mutex);
+    printf("Captured a packet with length of [%u] bytes and timestamp [%ld.%06ld]\n", header->caplen, header->ts.tv_sec, header->ts.tv_usec);
+
+    if(header->caplen != header->len) {
+        printf("Warning: Captured packet length [%u] does not match actual length [%u]\n", header->caplen, header->len);
+    }
+
+    if(packet_parser(packet, header) != 0) {
+        printf("Error parsing packet \n");
+    }
+
+    pthread_mutex_unlock(&log_mutex);
 }
 
 int capture_start(captureContext *ctx, int pkt_cnt) {
@@ -47,7 +64,6 @@ int capture_start(captureContext *ctx, int pkt_cnt) {
     printf("Starting to capture packets....\n");
 
     pcap_loop(ctx->handle, pkt_cnt, captureHandler, NULL);
-
 
     return 0;
 

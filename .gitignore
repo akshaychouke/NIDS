@@ -1,0 +1,8 @@
+# Ignore object files
+*.o
+
+# Ignore the mini-nids executable
+mini-nids
+
+# Ignore build directories
+obj/
