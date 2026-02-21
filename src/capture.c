@@ -33,3 +33,22 @@ int open_device(captureContext *ctx, const char *device) {
     printf("Succefully opned device : %s \n", dev);
     return 0;
 }
+
+void captureHandler(u_char *args, const struct pcap_pkthdr, const u_char *packet) {
+    printf("Inside the packete capture handler \n");
+}
+
+int capture_start(captureContext *ctx, int pkt_cnt) {
+
+    if(ctx == NULL) {
+        return -1;
+    }
+
+    printf("Starting to capture packets....\n");
+
+    pcap_loop(ctx->handle, pkt_cnt, captureHandler, NULL);
+
+
+    return 0;
+
+}
