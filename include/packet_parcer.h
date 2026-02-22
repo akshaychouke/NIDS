@@ -20,6 +20,6 @@ typedef struct PacketInfo {
 
 } PacketInfo;
 
-#endif
-
 int packet_parser(const u_char *packet, struct pcap_pkthdr *header);
+
+#endif
