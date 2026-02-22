@@ -1,14 +1,10 @@
-#include<stdio.h>
-#include<string.h>
-#include<stdlib.h>
-#include<pcap.h>
+#include <stdio.h>
+#include <stdint.h>
 #include <netinet/ip.h>
-#include <netinet/tcp.h>
 #include <net/ethernet.h>
 #include <arpa/inet.h>
-#include "../include/printUtils.h"
-#include "../include/packet_parcer.h"
 
+#include "printUtils.h"
 
 void printMacAddress(const u_char *mac) {
     int i;
