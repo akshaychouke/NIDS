@@ -143,3 +143,75 @@ void printPacketInfo(const PacketInfo *pkt_info) {
         printf("No payload data \n");
     }
 }
+
+/*
+ * Dump the packet in a compact, Wireshark-like layout.  Each layer has a
+ * one-line summary followed by indented field values; the payload is shown
+ * in hex if present.  The intention is to give users a familiar, nicely
+ * formatted representation without having to stitch together the lower-level
+ * printer functions themselves.
+ */
+void printFormattedPacket(const PacketInfo *pkt_info) {
+    if (!pkt_info || !pkt_info->eth) {
+        printf("<no packet information>\n");
+        return;
+    }
+
+    /* Ethernet layer */
+    printf("Ethernet II, Src: ");
+    for (int i = 0; i < 6; i++) {
+        printf("%02x%s", pkt_info->eth->ether_shost[i], (i < 5) ? ":" : "");
+    }
+    printf("  Dst: ");
+    for (int i = 0; i < 6; i++) {
+        printf("%02x%s", pkt_info->eth->ether_dhost[i], (i < 5) ? ":" : "");
+    }
+    printf("  Type: ");
+    printIPtype(ntohs(pkt_info->eth->ether_type));
+
+    /* IP layer details */
+    if (pkt_info->ip) {
+        struct ip *ip = pkt_info->ip;
+        char srcbuf[INET_ADDRSTRLEN], dstbuf[INET_ADDRSTRLEN];
+        inet_ntop(AF_INET, &ip->ip_src, srcbuf, sizeof(srcbuf));
+        inet_ntop(AF_INET, &ip->ip_dst, dstbuf, sizeof(dstbuf));
+
+        printf("Internet Protocol Version %d, Src: %s, Dst: %s\n",
+               ip->ip_v, srcbuf, dstbuf);
+        printf("    Version: %d, Header Len: %d bytes, TOS: 0x%02x, Total Len: %d, ID: 0x%04x\n",
+               ip->ip_v, ip->ip_hl * 4, ip->ip_tos, ntohs(ip->ip_len), ntohs(ip->ip_id));
+        uint16_t ipoff = ntohs(ip->ip_off);
+        printf("    Flags: 0x%02x", ipoff >> 13);
+        if (ipoff & IP_RF) printf(" RF");
+        if (ipoff & IP_DF) printf(" DF");
+        if (ipoff & IP_MF) printf(" MF");
+        printf(", Fragment Offset: %d\n", ipoff & 0x1fff);
+        printf("    TTL: %d, Protocol: ", ip->ip_ttl);
+        printProtocol(ip->ip_p);
+        printf("    Checksum: 0x%04x\n", ntohs(ip->ip_sum));
+    }
+
+    /* Transport layer details */
+    if (pkt_info->tcp) {
+        struct tcphdr *tcp = pkt_info->tcp;
+        printf("Transmission Control Protocol, Src Port: %d, Dst Port: %d, Seq: %u, Ack: %u\n",
+               ntohs(tcp->th_sport), ntohs(tcp->th_dport), ntohl(tcp->th_seq), ntohl(tcp->th_ack));
+        printf("    Data Offset: %d bytes, Flags: 0x%02x ", tcp->th_off * 4,
+               tcp->th_flags);
+        printTCFlags(tcp->th_flags);
+        printf("    Window: %d, Checksum: 0x%04x, Urgent Ptr: %d\n",
+               ntohs(tcp->th_win), ntohs(tcp->th_sum), ntohs(tcp->th_urp));
+    } else if (pkt_info->udp) {
+        struct udphdr *udp = pkt_info->udp;
+        printf("User Datagram Protocol, Src Port: %d, Dst Port: %d, Length: %d\n",
+               ntohs(udp->uh_sport), ntohs(udp->uh_dport), ntohs(udp->uh_ulen));
+        printf("    Checksum: 0x%04x\n", ntohs(udp->uh_sum));
+    }
+
+    /* payload */
+    if (pkt_info->payload_len > 0 && pkt_info->payload) {
+        printPayload(pkt_info->payload, pkt_info->payload_len);
+    } else {
+        printf("No payload\n");
+    }
+}
