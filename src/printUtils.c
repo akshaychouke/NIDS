@@ -79,6 +79,18 @@ void printIPHeader(const struct ip *ip_header) {
 }
 
 /* Layer 4 Details -> Transport Layer*/
+
+void printTCFlags(uint8_t flags) {
+    printf("TCP Flags: ");
+    if(flags & TH_FIN) printf("FIN, ");
+    if(flags & TH_SYN) printf("SYN, ");
+    if(flags & TH_RST) printf("RST, ");
+    if(flags & TH_PUSH) printf("PSH, ");
+    if(flags & TH_ACK) printf("ACK, ");
+    if(flags & TH_URG) printf("URG ");
+    printf("\n");
+}
+
 void printTCPHeader(const struct tcphdr *tcp_header) {
     printf("TCP Header:\n");
     printf("Source Port: %d\n", ntohs(tcp_header->th_sport));
@@ -87,6 +99,7 @@ void printTCPHeader(const struct tcphdr *tcp_header) {
     printf("Acknowledgment Number: %u\n", ntohl(tcp_header->th_ack));
     printf("Data Offset: %d bytes\n", tcp_header->th_off * 4);
     printf("Flags: 0x%02x\n", tcp_header->th_flags);
+    printTCFlags(tcp_header->th_flags);
     printf("Window Size: %d\n", ntohs(tcp_header->th_win));
     printf("Checksum: 0x%04x\n", ntohs(tcp_header->th_sum));
     printf("Urgent Pointer: %d\n", ntohs(tcp_header->th_urp));
