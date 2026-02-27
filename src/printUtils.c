@@ -60,7 +60,8 @@ void printProtocol(uint8_t protocol) {
             printf("Other (%d)\n", protocol);
     }
 }
-/* Layer 3 Details */
+
+/* Layer 3 Details -> Network Layer*/
 void printIPHeader(const struct ip *ip_header) {
     printf("IP Header:\n");
     printf("Version: %d\n", ip_header->ip_v);
@@ -77,9 +78,55 @@ void printIPHeader(const struct ip *ip_header) {
     printf("Destination IP: %s\n", inet_ntoa(ip_header->ip_dst));
 }
 
+/* Layer 4 Details -> Transport Layer*/
+void printTCPHeader(const struct tcphdr *tcp_header) {
+    printf("TCP Header:\n");
+    printf("Source Port: %d\n", ntohs(tcp_header->th_sport));
+    printf("Destination Port: %d\n", ntohs(tcp_header->th_dport));
+    printf("Sequence Number: %u\n", ntohl(tcp_header->th_seq));
+    printf("Acknowledgment Number: %u\n", ntohl(tcp_header->th_ack));
+    printf("Data Offset: %d bytes\n", tcp_header->th_off * 4);
+    printf("Flags: 0x%02x\n", tcp_header->th_flags);
+    printf("Window Size: %d\n", ntohs(tcp_header->th_win));
+    printf("Checksum: 0x%04x\n", ntohs(tcp_header->th_sum));
+    printf("Urgent Pointer: %d\n", ntohs(tcp_header->th_urp));
+}
+
+void printUDPHeader(const struct udphdr *udp_header) {
+    printf("UDP Header:\n");
+    printf("Source Port: %d\n", ntohs(udp_header->uh_sport));
+    printf("Destination Port: %d\n", ntohs(udp_header->uh_dport));
+    printf("Length: %d bytes\n", ntohs(udp_header->uh_ulen));
+    printf("Checksum: 0x%04x\n", ntohs(udp_header->uh_sum));
+}
+
+void printPayload(const u_char *payload, int payload_len) {
+    printf("Payload (%d bytes):\n", payload_len);
+    for(int i = 0; i < payload_len; i++) {
+        printf("%02x ", payload[i]);
+        if((i + 1) % 16 == 0) {
+            printf("\n");
+        }
+    }
+    printf("\n");
+}
+
 void printPacketInfo(const PacketInfo *pkt_info) {
     printf("Packet information.........\n");
     printEthernetHeader(pkt_info->eth);
     printIPHeader(pkt_info->ip);
     
+    if(pkt_info->tcp != NULL) {
+        printTCPHeader(pkt_info->tcp);
+    } else if(pkt_info->udp != NULL) {
+        printUDPHeader(pkt_info->udp);
+    } else {
+        printf("No TCP or UDP header found \n");
+    }
+
+    if(pkt_info->payload_len > 0) {
+        printPayload(pkt_info->payload, pkt_info->payload_len);
+    } else {
+        printf("No payload data \n");
+    }
 }
