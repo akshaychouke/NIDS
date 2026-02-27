@@ -33,7 +33,7 @@ void printIPtype(uint16_t eth_type) {
     }
 }
 
-/* Layer 2 Details */
+/* Layer 2 Details -> Ethernet Layer*/
 void printEthernetHeader(const struct ether_header *eth_header) {
     printf("Ethernet Header:\n");
     printf("Source MAC: ");
@@ -44,6 +44,7 @@ void printEthernetHeader(const struct ether_header *eth_header) {
     printIPtype(ntohs(eth_header->ether_type));
 }
 
+/* Layer 3 Details -> Network Layer*/
 void printProtocol(uint8_t protocol) {
     printf("Protocol: ");
     switch(protocol) {
@@ -61,7 +62,6 @@ void printProtocol(uint8_t protocol) {
     }
 }
 
-/* Layer 3 Details -> Network Layer*/
 void printIPHeader(const struct ip *ip_header) {
     printf("IP Header:\n");
     printf("Version: %d\n", ip_header->ip_v);

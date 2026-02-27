@@ -21,5 +21,7 @@ typedef struct PacketInfo {
 } PacketInfo;
 
 int packet_parser(const u_char *packet, struct pcap_pkthdr *header);
+void parseTCPHeader(const u_char *tcp_header, PacketInfo *pkt_info);
+void parseUDPHeader(const u_char *udp_header, PacketInfo *pkt_info);
 
 #endif

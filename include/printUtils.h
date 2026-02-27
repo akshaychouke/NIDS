@@ -7,10 +7,20 @@
 #include <net/ethernet.h>
 #include "packet_parcer.h"
 
+/* Layer 2 Details -> Ethernet Layer*/
 void printMacAddress(const u_char *mac);
 void printIPtype(uint16_t eth_type);
 void printEthernetHeader(const struct ether_header *eth_header);
+
+/* Layer 3 Details -> Network Layer*/
+void printProtocol(uint8_t protocol);
 void printIPHeader(const struct ip *ip_header);
+
+/* Layer 4 Details -> Transport Layer*/
+void printTCFlags(uint8_t flags);
+void printTCPHeader(const struct tcphdr *tcp_header);
+void printUDPHeader(const struct udphdr *udp_header);
+void printPayload(const u_char *payload, int payload_len);
 void printPacketInfo(const PacketInfo *pkt_info);
 
 /*
