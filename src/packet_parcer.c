@@ -38,12 +38,20 @@ int packet_parser(const u_char *packet, struct pcap_pkthdr *header) {
     
     switch (ip_header->ip_p) {
         case IPPROTO_TCP:
-            parseTCPHeader(transport_layer_header, &pkt_info);
-            printPacketInfo(&pkt_info);
+                parseTCPHeader(transport_layer_header, &pkt_info);
+                if (getPrintVerbose()) {
+                    printVerboseOneLine(&pkt_info);
+                } else {
+                    printFormattedPacket(&pkt_info);
+                }
             break;
         case IPPROTO_UDP:
-            parseUDPHeader(transport_layer_header, &pkt_info);
-            printPacketInfo(&pkt_info);
+                parseUDPHeader(transport_layer_header, &pkt_info);
+                if (getPrintVerbose()) {
+                    printVerboseOneLine(&pkt_info);
+                } else {
+                    printFormattedPacket(&pkt_info);
+                }
             break; 
         default:
             printf("Unsupported transport layer protocol: %d \n", ip_header->ip_p);

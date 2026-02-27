@@ -12,5 +12,12 @@ void printIPtype(uint16_t eth_type);
 void printEthernetHeader(const struct ether_header *eth_header);
 void printIPHeader(const struct ip *ip_header);
 void printPacketInfo(const PacketInfo *pkt_info);
+void printFormattedPacket(const PacketInfo *pkt_info);
+
+/* for verbose mode: detailed, single-line output */
+void printVerboseOneLine(const PacketInfo *pkt_info);
+
+void setPrintVerbose(int enabled);
+int getPrintVerbose(void);
 
 #endif
