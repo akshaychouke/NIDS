@@ -7,10 +7,15 @@
 
 static captureContext ctx;
 
-int main() {
+int main(int argc, char *argv[]) {
     printf("Starting......\n");
 
-    const char *dev = "enp0s3";
+    if (argc != 2) {
+        printf("Please provide interface name as an argument \n");
+        return 1;
+    }
+
+    const char *dev = argv[1];
 
     if (open_device(&ctx, dev) != 0) {
         printf("Failed to open device \n");

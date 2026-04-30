@@ -121,7 +121,7 @@ void printPayload(const u_char *payload, int payload_len) {
             printf("\n");
         }
     }
-    printf("\n");
+    printf("\n\n******************************************************************************\n\n");
 }
 
 void printPacketInfo(const PacketInfo *pkt_info) {
